@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.eac')
 @section('title', 'Catálogo de módulos')
 
 @section('content')

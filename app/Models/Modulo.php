@@ -21,4 +21,9 @@ class Modulo extends Model
     {
         return $this->hasMany(EcosistemaLaboral::class);
     }
+
+    public function resultadosAprendizaje(): HasMany
+    {
+        return $this->hasMany(ResultadoAprendizaje::class);
+    }
 }

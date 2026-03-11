@@ -21,11 +21,6 @@ class EcosistemaLaboral extends Model
         return $this->belongsTo(Modulo::class);
     }
 
-    public function resultadosAprendizaje(): HasMany
-    {
-        return $this->hasMany(ResultadoAprendizaje::class);
-    }
-
     public function situacionesCompetencia(): HasMany
     {
         return $this->hasMany(SituacionCompetencia::class);
