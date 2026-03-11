@@ -13,16 +13,14 @@ return new class extends Migration
     {
         Schema::create('resultados_aprendizaje', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ecosistema_laboral_id')
-                ->constrained('ecosistemas_laborales')
+            $table->foreignId('modulo_id')
+                ->constrained('modulos')
                 ->cascadeOnDelete();
-            $table->string('codigo', 20);             // Ej: "RA1", "RA2"
+            $table->string('codigo', 5);             // Ej: "RA1", "RA2"
             $table->text('descripcion');
-            $table->decimal('peso_porcentaje', 5, 2)->default(0);
-            $table->unsignedSmallInteger('orden')->default(0);
             $table->timestamps();
 
-            $table->unique(['ecosistema_laboral_id', 'codigo']);
+            $table->unique(['modulo_id', 'codigo']);
         });
     }
 

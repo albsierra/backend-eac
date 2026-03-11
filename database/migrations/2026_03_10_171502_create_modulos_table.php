@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('modulos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ciclo_formativo_id')
+                ->nullable()
                 ->constrained('ciclos_formativos')
                 ->cascadeOnDelete();
             $table->string('nombre');

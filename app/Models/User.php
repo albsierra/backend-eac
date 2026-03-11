@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -44,5 +46,40 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_roles')
+                    ->withPivot('ecosistema_laboral_id')
+                    ->withTimestamps();
+    }
+
+    // Ecosistemas en los que está matriculado (como estudiante)
+    public function matriculas(): HasMany
+    {
+        return $this->hasMany(Matricula::class, 'estudiante_id');
+    }
+
+    public function ecosistemasMatriculado(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            EcosistemaLaboral::class,
+            'matriculas',
+            'estudiante_id'
+        )->withTimestamps();
+    }
+
+    // Perfiles de habilitación del estudiante
+    public function perfilesHabilitacion(): HasMany
+    {
+        return $this->hasMany(PerfilHabilitacion::class, 'estudiante_id');
+    }
+
+    public function perfilEn(EcosistemaLaboral $ecosistema): ?PerfilHabilitacion
+    {
+        return $this->perfilesHabilitacion()
+                    ->where('ecosistema_laboral_id', $ecosistema->id)
+                    ->first();
     }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->string('nombre');
             $table->string('codigo', 10)->unique();
-            $table->enum('grado', ['basico', 'medio', 'superior']);
+            $table->enum('grado', ['GB','GM','GS','CE']);
             $table->text('descripcion')->nullable();
             $table->timestamps();
         });

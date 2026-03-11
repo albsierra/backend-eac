@@ -16,12 +16,12 @@ return new class extends Migration
             $table->foreignId('estudiante_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
-            $table->foreignId('ecosistema_laboral_id')
-                ->constrained('ecosistemas_laborales')
+            $table->foreignId('modulo_id')
+                ->constrained('modulos')
                 ->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['estudiante_id', 'ecosistema_laboral_id']);
+            $table->unique(['estudiante_id', 'modulo_id']);
         });
     }
 
