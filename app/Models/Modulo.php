@@ -26,4 +26,9 @@ class Modulo extends Model
     {
         return $this->hasMany(ResultadoAprendizaje::class);
     }
+
+    public function matriculas(): HasMany
+    {
+        return $this->hasMany(Matricula::class);
+    }
 }
