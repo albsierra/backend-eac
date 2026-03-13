@@ -32,9 +32,9 @@ class EcosistemaResource extends JsonResource
             ],
 
             'links' => [
-                'self'       => route('api.ecosistemas.show', $this->id),
-                'situaciones' => route('api.ecosistemas.situaciones', $this->id),
-                'modulo'     => route('api.modulos.show', $this->modulo_id),
+                'self'       => route('api.v1.ecosistemas.show', $this->id),
+                'situaciones' => route('api.v1.ecosistemas.situaciones', $this->id),
+                'modulo'     => route('api.v1.modulos.show', $this->modulo_id),
             ],
         ];
     }

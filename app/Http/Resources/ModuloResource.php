@@ -53,9 +53,9 @@ class ModuloResource extends JsonResource
             }),
 
             'links' => [
-                'self'       => route('api.modulos.show', $this->id),
+                'self'       => route('api.v1.modulos.show', $this->id),
                 'ecosistema' => $this->ecosistemasLaborales?->where('activo', true)->first()
-                    ? route('api.ecosistemas.show',
+                    ? route('api.v1.ecosistemas.show',
                         $this->ecosistemasLaborales->where('activo', true)->first()->id)
                     : null,
             ],
