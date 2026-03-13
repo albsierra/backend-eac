@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EcosistemaLaboral>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CicloFormativo>
  */
-class EcosistemaLaboralFactory extends Factory
+class CicloFormativoFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,11 +17,11 @@ class EcosistemaLaboralFactory extends Factory
     public function definition(): array
     {
         return [
-            'modulo_id' => \App\Models\Modulo::factory(),
+            'familia_profesional_id' => \App\Models\FamiliaProfesional::factory(),
             'nombre' => $this->faker->word(),
             'codigo' => strtoupper($this->faker->bothify('????-###')), // Ej: "ABCD-123"
+            'grado' => $this->faker->randomElement(['GB', 'GM', 'GS']),
             'descripcion' => $this->faker->sentence(),
-            'activo' => $this->faker->boolean(),
         ];
     }
 }

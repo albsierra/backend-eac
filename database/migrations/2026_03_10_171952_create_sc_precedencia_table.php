@@ -26,7 +26,7 @@ return new class extends Migration
         });
 
         // Evitar que una SC sea requisito de sí misma
-        DB::statement('ALTER TABLE sc_precedencia ADD CONSTRAINT chk_sc_precedencia CHECK (sc_id != sc_requisito_id);');
+        // DB::statement('ALTER TABLE sc_precedencia ADD CONSTRAINT chk_sc_precedencia CHECK (sc_id != sc_requisito_id);');
     }
 
     /**
