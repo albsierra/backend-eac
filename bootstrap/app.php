@@ -16,20 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
-
-        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
-            if (! $request->expectsJson() && ! $request->is('api/*')) {
-                return null; // Dejar que el handler web actúe
-            }
-
-            $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
-
-            return response()->json([
-                'type'   => "https://backend-eac.test/errors/{$status}",
-                'title'  => $e->getMessage() ?: 'Error interno',
-                'status' => $status,
-            ], $status);
-        });
-    })
-    ->create();
+    ->withExceptions(function (Exceptions $exceptions): void {
+        //
+    })->create();
