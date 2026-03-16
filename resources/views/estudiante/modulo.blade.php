@@ -165,7 +165,7 @@
                                         $pivot = $perfil->situacionesConquistadas
                                             ->firstWhere('codigo', $sc->codigo)?->pivot;
                                     @endphp
-                                    <x-sc-badge
+                                    <x-gradiente-badge
                                         :codigo="$sc->codigo"
                                         :gradiente="$pivot?->gradiente_autonomia"
                                     />

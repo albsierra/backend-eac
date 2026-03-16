@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Estudiante;
 
 use App\Http\Controllers\Controller;
+use App\Models\FamiliaProfesional;
 use App\Models\Modulo;
 use App\Models\PerfilHabilitacion;
 use App\Services\GrafoService;
 use App\Services\RecomendacionService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 
 class ModuloController extends Controller
 {
@@ -16,7 +18,30 @@ class ModuloController extends Controller
         private readonly RecomendacionService $recomendacionService,
     ) {}
 
-    public function __invoke(Modulo $modulo): View
+    /**
+    * Handle the incoming request.
+    */
+    public function index(Request $request) : View
+    {
+        $familias = FamiliaProfesional::orderBy('nombre')->get();
+
+        $modulos = Modulo::with([
+            'cicloFormativo.familiaProfesional',
+            'ecosistemasLaborales' => fn($q) => $q->where('activo', true),
+        ])
+        ->whereHas('ecosistemasLaborales', fn($q) => $q->where('activo', true))
+        ->whereHas('matriculas', fn($q) => $q->where('estudiante_id', auth()->id()))
+        ->when($request->filled('familia'), fn($q) =>
+            $q->whereHas('cicloFormativo',
+                fn($q2) => $q2->where('familia_profesional_id', $request->familia))
+        )
+        ->orderBy('codigo')
+        ->paginate(15);
+
+        return view('publico.modulos.index', compact('modulos', 'familias'));
+    }
+
+    public function show(Modulo $modulo): View
     {
         abort_unless(
             auth()->user()->matriculas()->where('modulo_id', $modulo->id)->exists(),

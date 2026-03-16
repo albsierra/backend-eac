@@ -72,7 +72,7 @@
 
                 {{-- Acción --}}
                 <a href="{{ route('estudiante.modulo', $perfil->ecosistemaLaboral->modulo) }}"
-                class="bg-vfds-primary hover:bg-vfds-primary/80 text-white text-sm font-medium
+                class="bg-vfds-primary hover:bg-vfds-primary/80 text-sm font-medium
                         px-4 py-2 rounded-lg transition whitespace-nowrap">
                     {{ $perfil->completado ? 'Ver resumen' : 'Continuar' }}
                 </a>
