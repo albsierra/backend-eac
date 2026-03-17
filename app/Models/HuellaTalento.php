@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HuellaTalento extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'estudiante_id', 'ecosistema_laboral_id',
         'payload', 'ngsi_ld_id', 'generada_en',
