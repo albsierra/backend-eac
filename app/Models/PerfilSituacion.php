@@ -18,4 +18,9 @@ class PerfilSituacion extends Pivot
         'puntuacion_conquista' => 'decimal:2',
         'fecha_conquista' => 'datetime',
     ];
+
+    public function perfilHabilitacion()
+    {
+        return $this->belongsTo(PerfilHabilitacion::class);
+    }
 }

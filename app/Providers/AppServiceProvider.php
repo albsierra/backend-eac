@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\CalificacionService;
+use App\Services\EACAnalyticsService;
 use App\Services\HuellaService;
 use App\Services\GrafoService;
 use App\Services\RecomendacionService;
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(CalificacionService::class);
         $this->app->singleton(HuellaService::class);
+        $this->app->singleton(EACAnalyticsService::class, function ($app) {
+            return new EACAnalyticsService(
+                $app->make(CalificacionService::class)
+            );
+        });
 
     }
 

@@ -70,11 +70,15 @@
                     <p class="text-xs text-gray-400">Calificación</p>
                 </div>
 
-                {{-- Acción --}}
+                {{-- Acciones --}}
                 <a href="{{ route('estudiante.modulo', $perfil->ecosistemaLaboral->modulo) }}"
                 class="bg-vfds-primary hover:bg-vfds-primary/80 text-sm font-medium
                         px-4 py-2 rounded-lg transition whitespace-nowrap">
                     {{ $perfil->completado ? 'Ver resumen' : 'Continuar' }}
+                </a>
+                <a href="{{ route('estudiante.huella-radar', $perfil->ecosistemaLaboral) }}"
+                class="btn btn-outline-indigo btn-sm">
+                    🎯 Ver mi Huella de Talento
                 </a>
 
             </div>

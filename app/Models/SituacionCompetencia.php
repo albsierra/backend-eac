@@ -66,4 +66,9 @@ class SituacionCompetencia extends Model
             'criterio_evaluacion_id'
         )->withPivot('peso_en_sc');
     }
+
+    public function perfilesHabilitacion(): HasMany
+    {
+        return $this->hasMany(PerfilSituacion::class, 'situacion_competencia_id');
+    }
 }

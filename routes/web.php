@@ -28,6 +28,16 @@ Route::middleware(['auth', 'role:estudiante'])
         Route::get('/perfil/{perfil}',    Estudiante\PerfilController::class)->name('perfil.show');
         Route::get('/modulos',         [Estudiante\ModuloController::class, 'index'])->name('modulos.index');
         Route::get('/modulos/{modulo}', [Estudiante\ModuloController::class, 'show'])->name('modulo');
+        Route::get(
+            'perfil/{ecosistema}/huella-radar',
+            Estudiante\HuellaRadarController::class
+        )->name('huella-radar');
+
+        Route::get(
+            'perfil/{ecosistema}/huellas',
+            // Reutilizamos el controlador de la Unidad 5
+            App\Http\Controllers\Api\V1\Estudiante\HuellaController::class . '@index'
+        )->name('huellas');
     });
 
 // ─── Rutas del docente ────────────────────────────────────────────────────────
@@ -38,6 +48,11 @@ Route::middleware(['auth', 'role:docente'])
         Route::get('/dashboard',                Docente\DashboardController::class)->name('dashboard');
         Route::get('/ecosistemas/{ecosistema}', Docente\EcosistemaController::class)->name('ecosistemas.show');
         Route::get('/progreso/{ecosistema}',    Docente\ProgresoController::class)->name('progreso.show');
+
+        Route::get(
+            'ecosistemas/{ecosistema}/analytics',
+            Docente\AnalyticsController::class
+        )->name('ecosistemas.analytics');
     });
 
 // Rutas de autenticación (generadas por Breeze)
