@@ -615,7 +615,7 @@ class GrupoFicticioSeeder extends Seeder
             foreach ($conqueredIds as $scId) {
                 $sum += $this->scoreForSc($student['id'], $scId);
             }
-            $calificacion = round($sum / count($conqueredIds) / 100, 2);
+            $calificacion = round($sum / count($conqueredIds) / 10, 2);
         }
 
         return DB::table('perfiles_habilitacion')->insertGetId([
@@ -679,7 +679,7 @@ class GrupoFicticioSeeder extends Seeder
                 'fecha_conquista'      => Carbon::now()->subDays(rand(1, 45))->format('Y-m-d H:i:s'),
             ];
         }
-        $calificacion = round($sumScore / count($conqueredIds) / 100, 2);
+        $calificacion = round($sumScore / count($conqueredIds) / 10, 2);
 
         // ── Desglose curricular ───────────────────────────────────────────
         $desgloseEfectivas = $this->buildCeEffectiveScores($student['id'], $conqueredIds);
@@ -700,7 +700,9 @@ class GrupoFicticioSeeder extends Seeder
                     'cubierto'    => $efectiva > 0,
                 ];
                 $sumRa       += $efectiva * $ce['peso'];
-                $totalWeight += $ce['peso'];
+                if ($efectiva > 0) {
+                    $totalWeight += $ce['peso'];
+                }
             }
 
             $desgloseCurricular[] = [
