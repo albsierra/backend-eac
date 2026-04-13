@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\EcosistemaLaboral;
+use App\Models\Modulo;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -13,13 +15,8 @@ class GrupoFicticioSeeder extends Seeder
     // Constantes del escenario
     // ────────────────────────────────────────────────────────────────────────
 
-    private const MODULO_ID          = 70;
-    private const MODULO_CODIGO      = '3069';
-    private const MODULO_NOMBRE      = 'Técnicas básicas de merchandising';
-    private const CICLO_NOMBRE       = 'Servicios Comerciales';
-    private const FAMILIA_NOMBRE     = 'COMERCIO Y MARKETING';
-    private const ECOSISTEMA_ID      = 1;
-    private const ECOSISTEMA_CODIGO  = 'AC-TBM';
+    private const MODULO_CODIGO      = 441;
+    private const ECOSISTEMA_CODIGO  = 'GA-TC';
     private const ROLE_DOCENTE       = 1;
     private const ROLE_ESTUDIANTE    = 2;
 
@@ -36,89 +33,86 @@ class GrupoFicticioSeeder extends Seeder
         'autonomo'    => 1.00,
     ];
 
-    /**
-     * Mapa SC → [criterio_evaluacion_id => peso_en_sc]
-     * Basado en el rango de IDs real de los CEs del módulo 70:
-     *   RA1 CEs a–h : 3601–3608
-     *   RA2 CEs a–k : 3609–3619
-     *   RA3 CEs a–i : 3620–3628
-     *   RA4 CEs a–i : 3629–3637
-     */
-    private const SC_CE_MAP = [
-        1 => [3601 => 30.00, 3602 => 40.00, 3603 => 30.00],
-        2 => [3603 => 60.00, 3609 => 40.00],
-        3 => [3602 => 30.00, 3609 => 40.00, 3610 => 30.00],
-        4 => [3614 => 40.00, 3615 => 30.00, 3616 => 30.00],
-        5 => [3620 => 35.00, 3621 => 35.00, 3622 => 30.00],
-    ];
+    private $modulo,
+        $ciclo_formativo,
+        $familia_profesional,
+        $ecosistema_laboral,
+        $curriculo,
+        $sc_ce_map;
 
-    /**
-     * Estructura curricular del módulo 70 (4 RA × todos sus CE).
-     * Los 'id' coinciden con los IDs reales de criterios_evaluacion.
-     */
-    private const CURRICULUM = [
-        'RA1' => [
-            'descripcion' => 'Monta elementos de animación del punto de venta y expositores de productos describiendo los criterios comerciales que es preciso utilizar.',
-            'peso'        => 1,
-            'criterios'   => [
-                ['id' => 3601, 'ce' => 'a', 'peso' => 1, 'descripcion' => 'Se ha identificado la ubicación física de los distintos sectores del punto de venta.'],
-                ['id' => 3602, 'ce' => 'b', 'peso' => 1, 'descripcion' => 'Se han identificado las zonas frías y calientes del punto de venta.'],
-                ['id' => 3603, 'ce' => 'c', 'peso' => 1, 'descripcion' => 'Se han descrito los criterios comerciales de distribución de los productos y mobiliario en el punto de venta.'],
-                ['id' => 3604, 'ce' => 'd', 'peso' => 1, 'descripcion' => 'Se han diferenciado los distintos tipos de mobiliario utilizados en el punto de venta y los elementos promocionales utilizados habitualmente.'],
-                ['id' => 3605, 'ce' => 'e', 'peso' => 1, 'descripcion' => 'Se han descrito los pasos y procesos de elaboración y montaje.'],
-                ['id' => 3606, 'ce' => 'f', 'peso' => 1, 'descripcion' => 'Se han montado expositores de productos y góndolas con fines comerciales.'],
-                ['id' => 3607, 'ce' => 'g', 'peso' => 1, 'descripcion' => 'Se ha colocado cartelería y otros elementos de animación, siguiendo criterios de «merchandising» y de imagen.'],
-                ['id' => 3608, 'ce' => 'h', 'peso' => 1, 'descripcion' => 'Se han seguido las instrucciones de montaje y uso del fabricante y las normas de seguridad y prevención de riesgos laborales.'],
-            ],
-        ],
-        'RA2' => [
-            'descripcion' => 'Dispone productos en lineales y expositores seleccionando la técnica básica de «merchandising» apropiada a las características del producto.',
-            'peso'        => 1,
-            'criterios'   => [
-                ['id' => 3609, 'ce' => 'a', 'peso' => 1, 'descripcion' => 'Se han identificado los parámetros físicos y comerciales que determinan la colocación de productos en los distintos niveles, zonas del lineal y posición.'],
-                ['id' => 3610, 'ce' => 'b', 'peso' => 1, 'descripcion' => 'Se ha descrito el proceso de traslado de los productos conduciendo transpalés o carretillas de mano, siguiendo las normas de seguridad.'],
-                ['id' => 3611, 'ce' => 'c', 'peso' => 1, 'descripcion' => 'Se ha descrito la clasificación del surtido por grupos, secciones, categorías, familias y referencias.'],
-                ['id' => 3612, 'ce' => 'd', 'peso' => 1, 'descripcion' => 'Se han descrito los efectos que producen en el consumidor los distintos modos de ubicación de los productos en el lineal.'],
-                ['id' => 3613, 'ce' => 'e', 'peso' => 1, 'descripcion' => 'Se ha identificado el lugar y disposición de los productos a partir de un planograma, foto o gráfico del lineal y la etiqueta del producto.'],
-                ['id' => 3614, 'ce' => 'f', 'peso' => 1, 'descripcion' => 'Se ha realizado inventario de las unidades del punto de venta, detectando huecos o roturas de «stocks».'],
-                ['id' => 3615, 'ce' => 'g', 'peso' => 1, 'descripcion' => 'Se han utilizado equipos de lectura de códigos de barras (lectores ópticos) para la identificación y control de los productos.'],
-                ['id' => 3616, 'ce' => 'h', 'peso' => 1, 'descripcion' => 'Se ha elaborado la información relativa al punto de venta utilizando aplicaciones informáticas a nivel usuario, procesador de texto y hoja de cálculo.'],
-                ['id' => 3617, 'ce' => 'i', 'peso' => 1, 'descripcion' => 'Se han colocado productos en diferentes tipos de lineales y expositores siguiendo criterios de «merchandising».'],
-                ['id' => 3618, 'ce' => 'j', 'peso' => 1, 'descripcion' => 'Se han limpiado y acondicionado lineales y estanterías para la correcta colocación de los productos.'],
-                ['id' => 3619, 'ce' => 'k', 'peso' => 1, 'descripcion' => 'Se han aplicado las medidas específicas de manipulación e higiene de los distintos productos.'],
-            ],
-        ],
-        'RA3' => [
-            'descripcion' => 'Coloca etiquetas y dispositivos de seguridad valorando la relevancia del sistema de codificación «European Article Numbering Association» (EAN) en el control del punto de venta.',
-            'peso'        => 1,
-            'criterios'   => [
-                ['id' => 3620, 'ce' => 'a', 'peso' => 1, 'descripcion' => 'Se han identificado distintos tipos de dispositivos de seguridad que se utilizan en el punto de venta.'],
-                ['id' => 3621, 'ce' => 'b', 'peso' => 1, 'descripcion' => 'Se ha descrito el funcionamiento de dispositivos de seguridad en el punto de venta.'],
-                ['id' => 3622, 'ce' => 'c', 'peso' => 1, 'descripcion' => 'Se han descrito los procesos de asignación de códigos a los distintos productos.'],
-                ['id' => 3623, 'ce' => 'd', 'peso' => 1, 'descripcion' => 'Se han interpretado etiquetas normalizadas y códigos EAN 13.'],
-                ['id' => 3624, 'ce' => 'e', 'peso' => 1, 'descripcion' => 'Se ha verificado la codificación de productos, identificando sus características, propiedades y localización.'],
-                ['id' => 3625, 'ce' => 'f', 'peso' => 1, 'descripcion' => 'Se han utilizado aplicaciones informáticas en la elaboración de documentación para transmitir los errores detectados entre la etiqueta y el producto.'],
-                ['id' => 3626, 'ce' => 'g', 'peso' => 1, 'descripcion' => 'Se han etiquetado productos manualmente y utilizando herramientas específicas de etiquetado y siguiendo criterios de «merchandising».'],
-                ['id' => 3627, 'ce' => 'h', 'peso' => 1, 'descripcion' => 'Se han colocado dispositivos de seguridad utilizando los sistemas de protección pertinentes.'],
-                ['id' => 3628, 'ce' => 'i', 'peso' => 1, 'descripcion' => 'Se ha valorado la relevancia de la codificación de los productos en el control del punto de venta.'],
-            ],
-        ],
-        'RA4' => [
-            'descripcion' => 'Empaqueta productos relacionando la técnica seleccionada con los criterios comerciales y de imagen perseguidos.',
-            'peso'        => 1,
-            'criterios'   => [
-                ['id' => 3629, 'ce' => 'a', 'peso' => 1, 'descripcion' => 'Se han identificado diferentes técnicas de empaquetado de productos.'],
-                ['id' => 3630, 'ce' => 'b', 'peso' => 1, 'descripcion' => 'Se ha analizado la simbología de formas, colores y texturas en la transmisión de la imagen de la empresa.'],
-                ['id' => 3631, 'ce' => 'c', 'peso' => 1, 'descripcion' => 'Se han identificado elementos y materiales que se utilizan en el empaquetado y presentación comercial de productos.'],
-                ['id' => 3632, 'ce' => 'd', 'peso' => 1, 'descripcion' => 'Se han seleccionado los materiales necesarios para el empaquetado en función de la técnica establecida y de la imagen de la empresa.'],
-                ['id' => 3633, 'ce' => 'e', 'peso' => 1, 'descripcion' => 'Se ha acondicionado el producto para su empaquetado, colocando elementos protectores y retirando el precio y los dispositivos de seguridad.'],
-                ['id' => 3634, 'ce' => 'f', 'peso' => 1, 'descripcion' => 'Se han empaquetado productos asegurando su consistencia y su presentación conforme a criterios comerciales.'],
-                ['id' => 3635, 'ce' => 'g', 'peso' => 1, 'descripcion' => 'Se han aplicado las medidas de prevención de riesgos laborales relacionadas.'],
-                ['id' => 3636, 'ce' => 'h', 'peso' => 1, 'descripcion' => 'Se han colocado motivos ornamentales de forma atractiva.'],
-                ['id' => 3637, 'ce' => 'i', 'peso' => 1, 'descripcion' => 'Se han retirado los restos del material utilizado para asegurar el orden y limpieza del lugar de trabajo.'],
-            ],
-        ],
-    ];
+    function initiate()
+    {
+        $this->modulo = Modulo::where('codigo', self::MODULO_CODIGO)->first();
+        if (! $this->modulo) {
+            $this->command->error("⛔ No se encontró el módulo con código " . self::MODULO_CODIGO . ". Asegúrate de que el módulo existe antes de ejecutar este seeder.");
+            exit(1);
+        }
+
+        $this->ciclo_formativo = $this->modulo->cicloFormativo;
+        $this->familia_profesional = $this->ciclo_formativo->familiaProfesional;
+        $this->curriculo = $this->getCurriculoData($this->modulo->id);
+        $this->sc_ce_map = $this->buildScCeMap($this->curriculo);
+    }
+
+    private function getCurriculoData($idModulo): array
+    {
+        $curriculo = [];
+
+        $ras = $this->modulo->resultadosAprendizaje;
+
+        foreach ($ras as $ra) {
+            $criterios = [];
+
+            foreach ($ra->criteriosEvaluacion()->orderBy('codigo')->get() as $ce) {
+                $criterios[] = [
+                    'id' => $ce->id,
+                    'ce' => $ce->codigo,
+                    'peso' => 1,
+                    'descripcion' => $ce->descripcion,
+                ];
+            }
+
+            $curriculo[$ra->codigo] = [
+                'descripcion' => $ra->descripcion,
+                'peso' => 1,
+                'criterios' => $criterios,
+            ];
+        }
+
+        return $curriculo;
+    }
+
+    private function buildScCeMap($curriculo): array
+    {
+        $sc_ce_map = [];
+
+        $raKeys = array_keys($curriculo);
+        $sc_ce_map[1] = [
+            $curriculo[$raKeys[0]]['criterios'][0]['id'] => 30.00,
+            $curriculo[$raKeys[0]]['criterios'][1]['id'] => 40.00,
+            $curriculo[$raKeys[0]]['criterios'][2]['id'] => 30.00,
+        ];
+        $sc_ce_map[2] = [
+            $curriculo[$raKeys[0]]['criterios'][2]['id'] => 30.00,
+            $curriculo[$raKeys[1]]['criterios'][0]['id'] => 40.00,
+        ];
+        $sc_ce_map[3] = [
+            $curriculo[$raKeys[0]]['criterios'][1]['id'] => 30.00,
+            $curriculo[$raKeys[1]]['criterios'][0]['id'] => 40.00,
+            $curriculo[$raKeys[1]]['criterios'][1]['id'] => 30.00,
+        ];
+        $sc_ce_map[4] = [
+            $curriculo[$raKeys[1]]['criterios'][4]['id'] => 40.00,
+            $curriculo[$raKeys[1]]['criterios'][5]['id'] => 30.00,
+            $curriculo[$raKeys[1]]['criterios'][6]['id'] => 30.00,
+        ];
+        $sc_ce_map[5] = [
+            $curriculo[$raKeys[2]]['criterios'][0]['id'] => 35.00,
+            $curriculo[$raKeys[2]]['criterios'][1]['id'] => 35.00,
+            $curriculo[$raKeys[2]]['criterios'][2]['id'] => 30.00,
+        ];
+        return $sc_ce_map;
+    }
 
     // ────────────────────────────────────────────────────────────────────────
     // Punto de entrada
@@ -135,11 +129,10 @@ class GrupoFicticioSeeder extends Seeder
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
+        $this->initiate();
+
         $this->truncateTables();
         $this->seedRoles();
-        $this->seedFamiliasProfesionales();
-        $this->seedCiclosFormativos();
-        $this->seedModulos();
         $this->seedEcosistemaLaboral();
 
         [$teacher, $students] = $this->seedUsers();
@@ -184,9 +177,6 @@ class GrupoFicticioSeeder extends Seeder
             'matriculas',
             'users',
             'ecosistemas_laborales',
-            'modulos',
-            'ciclos_formativos',
-            'familias_profesionales',
             'roles',
         ];
 
@@ -209,140 +199,14 @@ class GrupoFicticioSeeder extends Seeder
         ]);
     }
 
-    private function seedFamiliasProfesionales(): void
-    {
-        DB::table('familias_profesionales')->insert([
-            ['id' => 1, 'nombre' => 'ADMINISTRACIÓN Y GESTIÓN',     'codigo' => 'ADM', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 2, 'nombre' => 'COMERCIO Y MARKETING',         'codigo' => 'COM', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 3, 'nombre' => 'INFORMÁTICA Y COMUNICACIONES', 'codigo' => 'IFC', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-        ]);
-    }
-
-    private function seedCiclosFormativos(): void
-    {
-        DB::table('ciclos_formativos')->insert([
-            // ── Informática y Comunicaciones (familia 3) ──────────────
-            ['id' =>  1, 'familia_profesional_id' => 3, 'nombre' => 'Desarrollo de Aplicaciones Multiplataforma',     'codigo' => '12242002', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  2, 'familia_profesional_id' => 3, 'nombre' => 'Desarrollo de Aplicaciones Web',                 'codigo' => '12242003', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  3, 'familia_profesional_id' => 3, 'nombre' => 'Informática de oficina',                         'codigo' => '12342002', 'grado' => 'GB', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  4, 'familia_profesional_id' => 3, 'nombre' => 'Administración de Sistemas Informáticos en Red', 'codigo' => '12242001', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  5, 'familia_profesional_id' => 3, 'nombre' => 'Sistemas Microinformáticos y Redes',             'codigo' => '12142001', 'grado' => 'GM', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  6, 'familia_profesional_id' => 3, 'nombre' => 'Informática y Comunicaciones',                   'codigo' => '12342001', 'grado' => 'GB', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Administración y Gestión (familia 1) ──────────────────
-            ['id' =>  7, 'familia_profesional_id' => 1, 'nombre' => 'Servicios Administrativos',                      'codigo' => '12342101', 'grado' => 'GB', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  8, 'familia_profesional_id' => 1, 'nombre' => 'Gestión Administrativa',                         'codigo' => '12142101', 'grado' => 'GM', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  9, 'familia_profesional_id' => 1, 'nombre' => 'Administración y Finanzas',                      'codigo' => '12242102', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 10, 'familia_profesional_id' => 1, 'nombre' => 'Asistencia a la dirección',                      'codigo' => '12242101', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Comercio y Marketing (familia 2) ──────────────────────
-            ['id' => 11, 'familia_profesional_id' => 2, 'nombre' => 'Actividades comerciales',                        'codigo' => '12142201', 'grado' => 'GM', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 12, 'familia_profesional_id' => 2, 'nombre' => 'Servicios Comerciales',                          'codigo' => '12342201', 'grado' => 'GB', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 13, 'familia_profesional_id' => 2, 'nombre' => 'Comercialización de Productos Alimentarios',     'codigo' => '12142202', 'grado' => 'GM', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 14, 'familia_profesional_id' => 2, 'nombre' => 'Comercio Internacional',                         'codigo' => '12242201', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 15, 'familia_profesional_id' => 2, 'nombre' => 'Gestión de ventas y espacios comerciales',       'codigo' => '12242202', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 16, 'familia_profesional_id' => 2, 'nombre' => 'Marketing y publicidad',                         'codigo' => '12242203', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 17, 'familia_profesional_id' => 2, 'nombre' => 'Transporte y Logística',                         'codigo' => '12242204', 'grado' => 'GS', 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-        ]);
-    }
-
-    private function seedModulos(): void
-    {
-        DB::table('modulos')->insert([
-            // ── DAM – ciclo 1 ──────────────────────────────────────────────
-            ['id' =>  1, 'ciclo_formativo_id' =>  1, 'nombre' => 'Sistemas informáticos',                                            'codigo' => '483',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  2, 'ciclo_formativo_id' =>  1, 'nombre' => 'Bases de Datos',                                                   'codigo' => '484',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  3, 'ciclo_formativo_id' =>  1, 'nombre' => 'Programación',                                                     'codigo' => '485',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  4, 'ciclo_formativo_id' =>  1, 'nombre' => 'Lenguajes de Marcas y Sistemas de Gestión de Información.',        'codigo' => '373',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  5, 'ciclo_formativo_id' =>  1, 'nombre' => 'Entornos de desarrollo',                                          'codigo' => '487',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 23, 'ciclo_formativo_id' =>  1, 'nombre' => 'Acceso a datos',                                                   'codigo' => '486',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 24, 'ciclo_formativo_id' =>  1, 'nombre' => 'Desarrollo de interfaces',                                        'codigo' => '488',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 25, 'ciclo_formativo_id' =>  1, 'nombre' => 'Programación multimedia y dispositivos móviles',                  'codigo' => '489',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 26, 'ciclo_formativo_id' =>  1, 'nombre' => 'Programación de servicios y procesos.',                           'codigo' => '490',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 27, 'ciclo_formativo_id' =>  1, 'nombre' => 'Sistemas de gestión empresarial',                                 'codigo' => '491',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── DAW – ciclo 2 ──────────────────────────────────────────────
-            ['id' =>  6, 'ciclo_formativo_id' =>  2, 'nombre' => 'Desarrollo Web en entorno cliente.',                              'codigo' => '612',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  7, 'ciclo_formativo_id' =>  2, 'nombre' => 'Desarrollo Web en entorno servidor.',                             'codigo' => '613',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  8, 'ciclo_formativo_id' =>  2, 'nombre' => 'Despliegue de aplicaciones Web.',                                 'codigo' => '614',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' =>  9, 'ciclo_formativo_id' =>  2, 'nombre' => 'Diseño de interfaces web',                                        'codigo' => '615',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Informática de oficina GB – ciclo 3 ───────────────────────
-            ['id' => 10, 'ciclo_formativo_id' =>  3, 'nombre' => 'Montaje y mantenimiento de sistemas y componentes informáticos',  'codigo' => '3029', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 11, 'ciclo_formativo_id' =>  3, 'nombre' => 'Operaciones auxiliares para la configuración y la explotación',  'codigo' => '3030', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 12, 'ciclo_formativo_id' =>  3, 'nombre' => 'Ofimática y archivo de documentos',                              'codigo' => '3031', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 13, 'ciclo_formativo_id' =>  3, 'nombre' => 'Instalación y mantenimiento de redes para transmisión de datos', 'codigo' => '3016', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── ASIR GS – ciclo 4 ─────────────────────────────────────────
-            ['id' => 14, 'ciclo_formativo_id' =>  4, 'nombre' => 'Implantación de Sistemas Operativos',                             'codigo' => '369',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 15, 'ciclo_formativo_id' =>  4, 'nombre' => 'Planificación y Administración de Redes.',                        'codigo' => '370',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 16, 'ciclo_formativo_id' =>  4, 'nombre' => 'Fundamentos de Hardware.',                                        'codigo' => '371',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 17, 'ciclo_formativo_id' =>  4, 'nombre' => 'Gestión de Base de Datos',                                        'codigo' => '372',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 18, 'ciclo_formativo_id' =>  4, 'nombre' => 'Administración de Sistemas Operativos',                           'codigo' => '374',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 19, 'ciclo_formativo_id' =>  4, 'nombre' => 'Servicios de Red e Internet.',                                    'codigo' => '375',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 20, 'ciclo_formativo_id' =>  4, 'nombre' => 'Implantación de Aplicaciones Web.',                               'codigo' => '376',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 21, 'ciclo_formativo_id' =>  4, 'nombre' => 'Administración de Sistemas Gestores de Bases de Datos.',          'codigo' => '377',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 22, 'ciclo_formativo_id' =>  4, 'nombre' => 'Seguridad y Alta Disponibilidad.',                                'codigo' => '378',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── SMR GM – ciclo 5 ──────────────────────────────────────────
-            ['id' => 28, 'ciclo_formativo_id' =>  5, 'nombre' => 'Montaje y mantenimiento de equipos',                              'codigo' => '221',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 29, 'ciclo_formativo_id' =>  5, 'nombre' => 'Sistemas operativos monopuesto',                                  'codigo' => '222',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 30, 'ciclo_formativo_id' =>  5, 'nombre' => 'Aplicaciones ofimáticas',                                        'codigo' => '223',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 31, 'ciclo_formativo_id' =>  5, 'nombre' => 'Redes locales',                                                   'codigo' => '225',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 32, 'ciclo_formativo_id' =>  5, 'nombre' => 'Sistemas operativos en red',                                      'codigo' => '224',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 33, 'ciclo_formativo_id' =>  5, 'nombre' => 'Seguridad informática',                                           'codigo' => '226',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 34, 'ciclo_formativo_id' =>  5, 'nombre' => 'Servicios en red',                                                'codigo' => '227',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 35, 'ciclo_formativo_id' =>  5, 'nombre' => 'Aplicaciones web',                                                'codigo' => '228',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Informática y Comunicaciones GB – ciclo 6 ─────────────────
-            ['id' => 36, 'ciclo_formativo_id' =>  6, 'nombre' => 'Equipos eléctricos y electrónicos.',                              'codigo' => '3015', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Servicios Administrativos GB – ciclo 7 ────────────────────
-            ['id' => 39, 'ciclo_formativo_id' =>  7, 'nombre' => 'Técnicas administrativas básicas',                                'codigo' => '3003', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 40, 'ciclo_formativo_id' =>  7, 'nombre' => 'Archivo y comunicación',                                          'codigo' => '3004', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Gestión Administrativa GM – ciclo 8 ───────────────────────
-            ['id' => 43, 'ciclo_formativo_id' =>  8, 'nombre' => 'Comunicación y atención al cliente',                              'codigo' => '437',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 44, 'ciclo_formativo_id' =>  8, 'nombre' => 'Operaciones adminstrativas de la compraventa',                    'codigo' => '438',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 45, 'ciclo_formativo_id' =>  8, 'nombre' => 'Empresa y administración',                                        'codigo' => '439',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 46, 'ciclo_formativo_id' =>  8, 'nombre' => 'Tratamiento informático de la información',                      'codigo' => '440',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 47, 'ciclo_formativo_id' =>  8, 'nombre' => 'Técnica Contable',                                                'codigo' => '441',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 48, 'ciclo_formativo_id' =>  8, 'nombre' => 'Operaciones adminstrativas de recursos humanos',                  'codigo' => '442',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 49, 'ciclo_formativo_id' =>  8, 'nombre' => 'Tratamiento de la documentación contable',                        'codigo' => '443',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 50, 'ciclo_formativo_id' =>  8, 'nombre' => 'Empresa en el Aula',                                              'codigo' => '446',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Administración y Finanzas GS – ciclo 9 ───────────────────
-            ['id' => 51, 'ciclo_formativo_id' =>  9, 'nombre' => 'Gestión de la documentación jurídica y empresarial',              'codigo' => '647',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 52, 'ciclo_formativo_id' =>  9, 'nombre' => 'Recursos Humanos y responsabilidad social corporativa.',         'codigo' => '648',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 53, 'ciclo_formativo_id' =>  9, 'nombre' => 'Ofimática y proceso de la información',                          'codigo' => '649',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 54, 'ciclo_formativo_id' =>  9, 'nombre' => 'Proceso integral de la actividad comercial',                     'codigo' => '650',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 55, 'ciclo_formativo_id' =>  9, 'nombre' => 'Comunicación y atención al cliente',                              'codigo' => '651',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 56, 'ciclo_formativo_id' =>  9, 'nombre' => 'Gestión de recursos humanos',                                     'codigo' => '652',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 57, 'ciclo_formativo_id' =>  9, 'nombre' => 'Gestión Financiera',                                              'codigo' => '653',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 58, 'ciclo_formativo_id' =>  9, 'nombre' => 'Contabilidad y Fiscalidad',                                       'codigo' => '654',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 59, 'ciclo_formativo_id' =>  9, 'nombre' => 'Gestión Logística y Comercial',                                   'codigo' => '645',  'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Actividades comerciales GM – ciclo 11 ────────────────────
-            ['id' => 60, 'ciclo_formativo_id' => 11, 'nombre' => 'Marketing en la actividad comercial',                             'codigo' => '1226', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 61, 'ciclo_formativo_id' => 11, 'nombre' => 'Gestión de compras',                                              'codigo' => '1229', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 62, 'ciclo_formativo_id' => 11, 'nombre' => 'Dinamización del punto de venta',                                'codigo' => '1231', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 63, 'ciclo_formativo_id' => 11, 'nombre' => 'Procesos de Venta',                                               'codigo' => '1232', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 64, 'ciclo_formativo_id' => 11, 'nombre' => 'Aplicaciones informáticas para el comercio',                     'codigo' => '1233', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 65, 'ciclo_formativo_id' => 11, 'nombre' => 'Servicios de atención comercial',                                 'codigo' => '1234', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 66, 'ciclo_formativo_id' => 11, 'nombre' => 'Comercio electrónico',                                            'codigo' => '1235', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 67, 'ciclo_formativo_id' => 11, 'nombre' => 'Gestión de un pequeño comercio',                                  'codigo' => '1227', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 68, 'ciclo_formativo_id' => 11, 'nombre' => 'Técnicas de almacén.',                                            'codigo' => '1228', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 69, 'ciclo_formativo_id' => 11, 'nombre' => 'Venta técnica',                                                   'codigo' => '1230', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            // ── Servicios Comerciales GB – ciclo 12  (módulo objetivo) ────
-            ['id' => 37, 'ciclo_formativo_id' => 12, 'nombre' => 'Tratamiento informático de datos',                                'codigo' => '3001', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 38, 'ciclo_formativo_id' => 12, 'nombre' => 'Aplicaciones básicas de ofimática',                               'codigo' => '3002', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 41, 'ciclo_formativo_id' => 12, 'nombre' => 'Atención al cliente',                                             'codigo' => '3005', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 42, 'ciclo_formativo_id' => 12, 'nombre' => 'Preparación de pedidos y venta de productos',                     'codigo' => '3006', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 70, 'ciclo_formativo_id' => 12, 'nombre' => self::MODULO_NOMBRE,                                               'codigo' => self::MODULO_CODIGO, 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 71, 'ciclo_formativo_id' => 12, 'nombre' => 'Operaciones auxiliares de almacenaje.',                           'codigo' => '3070', 'horas_totales' => 0, 'descripcion' => null, 'created_at' => now(), 'updated_at' => now()],
-        ]);
-    }
-
     private function seedEcosistemaLaboral(): void
     {
-        DB::table('ecosistemas_laborales')->insert([
-            'id'          => self::ECOSISTEMA_ID,
-            'modulo_id'   => self::MODULO_ID,
-            'nombre'      => self::MODULO_NOMBRE,
+        $this->ecosistema_laboral = EcosistemaLaboral::create([
+            'modulo_id'   => $this->modulo->id,
+            'nombre'      => $this->modulo->nombre,
             'codigo'      => self::ECOSISTEMA_CODIGO,
             'descripcion' => null,
             'activo'      => true,
-            'created_at'  => now(),
-            'updated_at'  => now(),
         ]);
     }
 
@@ -393,7 +257,7 @@ class GrupoFicticioSeeder extends Seeder
         $rows = [[
             'user_id'               => $teacher['id'],
             'role_id'               => self::ROLE_DOCENTE,
-            'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+            'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
             'created_at'            => now(),
             'updated_at'            => now(),
         ]];
@@ -402,7 +266,7 @@ class GrupoFicticioSeeder extends Seeder
             $rows[] = [
                 'user_id'               => $s['id'],
                 'role_id'               => self::ROLE_ESTUDIANTE,
-                'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+                'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
                 'created_at'            => now(),
                 'updated_at'            => now(),
             ];
@@ -417,7 +281,7 @@ class GrupoFicticioSeeder extends Seeder
         foreach ($students as $s) {
             $rows[] = [
                 'estudiante_id' => $s['id'],
-                'modulo_id'     => self::MODULO_ID,
+                'modulo_id'     => $this->modulo->id,
                 'created_at'    => now(),
                 'updated_at'    => now(),
             ];
@@ -447,13 +311,16 @@ class GrupoFicticioSeeder extends Seeder
      */
     private function seedSituacionesCompetencia(): array
     {
+        // Actualizar los campos `titulo` y `descripcion` a la temática del módulo para mayor realismo.
+        // Los criterios de evaluación que se pueden tomar de referencia están pegados al final de este archivo.
+
         $scs = [
             [
                 'id'                    => 1,
-                'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+                'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
                 'codigo'                => 'SC-01',
-                'titulo'                => 'Diseñar la disposición de productos en un lineal',
-                'descripcion'           => 'El estudiante diseña y argumenta la disposición óptima de una categoría de productos en un lineal de 2 m, aplicando los principios del visual merchandising y elaborando el planograma correspondiente.',
+                'titulo'                => 'Clasificar los elementos patrimoniales de una empresa en masas patrimoniales',
+                'descripcion'           => 'El estudiante analiza el conjunto de bienes, derechos y obligaciones de una empresa dada, los identifica como elementos patrimoniales y los agrupa correctamente en las masas patrimoniales del activo, el pasivo exigible y el patrimonio neto, relacionando cada masa con la fase del ciclo económico que le corresponde.',
                 'umbral_maestria'       => 80.00,
                 'nivel_complejidad'     => 2,
                 'activa'                => true,
@@ -462,10 +329,10 @@ class GrupoFicticioSeeder extends Seeder
             ],
             [
                 'id'                    => 2,
-                'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+                'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
                 'codigo'                => 'SC-02',
-                'titulo'                => 'Elaborar un planograma básico para un punto de venta',
-                'descripcion'           => 'El estudiante elabora el planograma completo de una sección de un establecimiento, justificando la ubicación de cada producto en función de su rotación y margen.',
+                'titulo'                => 'Aplicar la metodología contable por partida doble a un ciclo contable completo',
+                'descripcion'           => 'El estudiante registra una secuencia de hechos económicos utilizando el método de partida doble, aplica correctamente los criterios de cargo y abono, elabora el balance de comprobación para detectar posibles errores y realiza los asientos de cierre y apertura del ejercicio.',
                 'umbral_maestria'       => 80.00,
                 'nivel_complejidad'     => 2,
                 'activa'                => true,
@@ -474,10 +341,10 @@ class GrupoFicticioSeeder extends Seeder
             ],
             [
                 'id'                    => 3,
-                'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+                'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
                 'codigo'                => 'SC-03',
-                'titulo'                => 'Analizar el rendimiento de una zona caliente/fría',
-                'descripcion'           => 'El estudiante analiza el rendimiento de un punto de venta real o simulado mediante indicadores de ventas e identifica propuestas de mejora para las zonas de bajo rendimiento.',
+                'titulo'                => 'Interpretar y aplicar la estructura del Plan General de Contabilidad PYME',
+                'descripcion'           => 'El estudiante identifica las partes del PGC-PYME, distingue las secciones obligatorias de las voluntarias, describe los principios contables del marco conceptual y codifica un conjunto de elementos patrimoniales conforme al sistema de codificación del plan, justificando la cuenta asignada a cada elemento.',
                 'umbral_maestria'       => 75.00,
                 'nivel_complejidad'     => 3,
                 'activa'                => true,
@@ -486,10 +353,10 @@ class GrupoFicticioSeeder extends Seeder
             ],
             [
                 'id'                    => 4,
-                'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+                'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
                 'codigo'                => 'SC-04',
-                'titulo'                => 'Gestionar el reaprovisionamiento de un lineal',
-                'descripcion'           => 'El estudiante planifica y ejecuta el reaprovisionamiento de un lineal detectando roturas de stock, calculando el índice de rotación y asegurando la disponibilidad óptima del surtido.',
+                'titulo'                => 'Contabilizar los hechos económicos básicos de un ejercicio económico',
+                'descripcion'           => 'El estudiante identifica las cuentas patrimoniales y de gestión que intervienen en las operaciones habituales de una empresa, las codifica según el PGC-PYME, determina qué cuentas se cargan y cuáles se abonan en cada operación y realiza todos los asientos del ejercicio garantizando la seguridad y confidencialidad de la información.',
                 'umbral_maestria'       => 80.00,
                 'nivel_complejidad'     => 2,
                 'activa'                => true,
@@ -498,10 +365,10 @@ class GrupoFicticioSeeder extends Seeder
             ],
             [
                 'id'                    => 5,
-                'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+                'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
                 'codigo'                => 'SC-05',
-                'titulo'                => 'Elaborar un informe de rendimiento de categoría',
-                'descripcion'           => 'El estudiante elabora un informe completo de rendimiento de una categoría de productos integrando indicadores de ventas, rotación de stock y eficacia del lineal, y propone acciones de mejora argumentadas.',
+                'titulo'                => 'Gestionar el plan de cuentas y los asientos en una aplicación de contabilidad',
+                'descripcion'           => 'El estudiante da de alta y de baja cuentas y subcuentas en una aplicación informática contable, introduce asientos predefinidos y manuales respetando los procedimientos establecidos, resuelve incidencias recurriendo a los recursos de ayuda del programa y realiza la copia de seguridad de cuentas, saldos y movimientos siguiendo el plan de custodia establecido.',
                 'umbral_maestria'       => 80.00,
                 'nivel_complejidad'     => 3,
                 'activa'                => true,
@@ -520,23 +387,24 @@ class GrupoFicticioSeeder extends Seeder
     {
         DB::table('nodos_requisito')->insert([
             // SC-01 – nivel entrada, sin SC previas
-            ['situacion_competencia_id' => 1, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer los principios del color, la luz y la composición aplicados al escaparatismo y el visual merchandising.',     'orden' => 1, 'created_at' => null, 'updated_at' => null],
-            ['situacion_competencia_id' => 1, 'tipo' => 'habilidad',    'descripcion' => 'Manejar herramientas básicas de diseño gráfico (Canva, PowerPoint o similar) para crear bocetos de lineales.',         'orden' => 2, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 1, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer las fases del ciclo económico de la actividad empresarial y distinguir los conceptos de inversión, financiación, gasto, pago, ingreso y cobro.', 'orden' => 1, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 1, 'tipo' => 'habilidad',    'descripcion' => 'Identificar y clasificar un conjunto de elementos patrimoniales agrupándolos en activo, pasivo exigible y patrimonio neto a partir de la información económica de una empresa.', 'orden' => 2, 'created_at' => null, 'updated_at' => null],
             // SC-02 – requiere SC-01
-            ['situacion_competencia_id' => 2, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer la estructura, simbología y convenciones de un planograma estándar (DotActiv, Excel).',                        'orden' => 1, 'created_at' => null, 'updated_at' => null],
-            ['situacion_competencia_id' => 2, 'tipo' => 'habilidad',    'descripcion' => 'Calcular el facing y el lineal desarrollado óptimos para una referencia a partir de su rotación y margen.',             'orden' => 2, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 2, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer el concepto de cuenta contable y las características del método de registro por partida doble, incluyendo los criterios de cargo y abono.', 'orden' => 1, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 2, 'tipo' => 'habilidad',    'descripcion' => 'Elaborar un balance de comprobación a partir de un conjunto de asientos y detectar errores u omisiones en las anotaciones de las cuentas.', 'orden' => 2, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 2, 'tipo' => 'habilidad',    'descripcion' => 'Redactar los asientos de cierre y apertura de un ejercicio económico distinguiendo las cuentas de ingresos y gastos que intervienen en el cálculo del resultado contable.', 'orden' => 3, 'created_at' => null, 'updated_at' => null],
             // SC-03 – requiere SC-01
-            ['situacion_competencia_id' => 3, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer los KPIs de rendimiento comercial: índice de rotación, ventas por metro lineal, tasa de conversión.',          'orden' => 1, 'created_at' => null, 'updated_at' => null],
-            ['situacion_competencia_id' => 3, 'tipo' => 'habilidad',    'descripcion' => 'Calcular e interpretar el índice de rotación de stock y la ratio de ventas por zona en una hoja de cálculo.',           'orden' => 2, 'created_at' => null, 'updated_at' => null],
-            ['situacion_competencia_id' => 3, 'tipo' => 'habilidad',    'descripcion' => 'Identificar visualmente zonas frías y calientes mediante mapas de calor o informes de venta.',                          'orden' => 3, 'created_at' => null, 'updated_at' => null],
-            // SC-04 – requiere SC-01
-            ['situacion_competencia_id' => 4, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer los sistemas de gestión de inventario y los criterios de rotación FIFO/FEFO aplicados al punto de venta.',     'orden' => 1, 'created_at' => null, 'updated_at' => null],
-            ['situacion_competencia_id' => 4, 'tipo' => 'habilidad',    'descripcion' => 'Utilizar lectores ópticos de códigos de barras y hojas de recuento para la detección de roturas de stock.',            'orden' => 2, 'created_at' => null, 'updated_at' => null],
-            ['situacion_competencia_id' => 4, 'tipo' => 'habilidad',    'descripcion' => 'Calcular el punto de pedido y el stock de seguridad para una referencia de alta rotación.',                             'orden' => 3, 'created_at' => null, 'updated_at' => null],
-            // SC-05 – requiere SC-02 y SC-04
-            ['situacion_competencia_id' => 5, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer la estructura y los apartados clave de un informe de gestión de categorías (category management).',            'orden' => 1, 'created_at' => null, 'updated_at' => null],
-            ['situacion_competencia_id' => 5, 'tipo' => 'habilidad',    'descripcion' => 'Elaborar gráficas e indicadores de rendimiento consolidados a partir de datos de ventas en hoja de cálculo.',          'orden' => 2, 'created_at' => null, 'updated_at' => null],
-            ['situacion_competencia_id' => 5, 'tipo' => 'habilidad',    'descripcion' => 'Redactar conclusiones y propuestas de mejora con argumentación comercial clara y orientada a resultados.',              'orden' => 3, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 3, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer las distintas partes del PGC-PYME, identificar cuáles son de aplicación obligatoria y describir los principios contables recogidos en su marco conceptual.', 'orden' => 1, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 3, 'tipo' => 'conocimiento', 'descripcion' => 'Comprender el sistema de codificación del PGC-PYME y su función para asociar y desglosar la información contable por grupos, subgrupos y cuentas.', 'orden' => 2, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 3, 'tipo' => 'habilidad',    'descripcion' => 'Codificar un conjunto de elementos patrimoniales conforme al cuadro de cuentas del PGC-PYME e identificar las cuentas anuales que el plan establece.', 'orden' => 3, 'created_at' => null, 'updated_at' => null],
+            // SC-04 – requiere SC-02 y SC-03
+            ['situacion_competencia_id' => 4, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer las cuentas patrimoniales y de gestión que intervienen en las operaciones básicas de compraventa, cobros, pagos y periodificaciones según el PGC-PYME.', 'orden' => 1, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 4, 'tipo' => 'habilidad',    'descripcion' => 'Determinar qué cuentas se cargan y cuáles se abonan en cada hecho contable y registrar los asientos correspondientes a todas las operaciones de un ejercicio económico básico.', 'orden' => 2, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 4, 'tipo' => 'habilidad',    'descripcion' => 'Aplicar los principios de responsabilidad, seguridad y confidencialidad en el tratamiento de la información contable durante el registro de operaciones.', 'orden' => 3, 'created_at' => null, 'updated_at' => null],
+            // SC-05 – requiere SC-03 y SC-04
+            ['situacion_competencia_id' => 5, 'tipo' => 'conocimiento', 'descripcion' => 'Conocer el funcionamiento general de una aplicación informática contable: gestión del plan de cuentas, introducción de asientos predefinidos y recursos de ayuda disponibles.', 'orden' => 1, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 5, 'tipo' => 'habilidad',    'descripcion' => 'Dar de alta y de baja cuentas, subcuentas y conceptos codificados en la aplicación siguiendo los procedimientos establecidos e introducir asientos manuales y predefinidos.', 'orden' => 2, 'created_at' => null, 'updated_at' => null],
+            ['situacion_competencia_id' => 5, 'tipo' => 'habilidad',    'descripcion' => 'Realizar y gestionar copias de seguridad de cuentas, saldos y movimientos conforme al plan de custodia establecido, eligiendo el soporte y el momento adecuados.', 'orden' => 3, 'created_at' => null, 'updated_at' => null],
         ]);
     }
 
@@ -555,7 +423,7 @@ class GrupoFicticioSeeder extends Seeder
     private function seedScCriteriosEvaluacion(): void
     {
         $rows = [];
-        foreach (self::SC_CE_MAP as $scId => $ceMap) {
+        foreach ($this->sc_ce_map as $scId => $ceMap) {
             foreach ($ceMap as $ceId => $peso) {
                 $rows[] = [
                     'situacion_competencia_id' => $scId,
@@ -620,7 +488,7 @@ class GrupoFicticioSeeder extends Seeder
 
         return DB::table('perfiles_habilitacion')->insertGetId([
             'estudiante_id'         => $student['id'],
-            'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+            'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
             'calificacion_actual'   => $calificacion,
             'created_at'            => now(),
             'updated_at'            => now(),
@@ -657,7 +525,7 @@ class GrupoFicticioSeeder extends Seeder
         $ngsiLdId    = sprintf(
             'urn:ngsi-ld:PerfilHabilitacion:estudiante-%d-ecosistema-%d',
             $student['id'],
-            self::ECOSISTEMA_ID
+            $this->ecosistema_laboral->id
         );
 
         // ── Situaciones conquistadas ──────────────────────────────────────
@@ -685,7 +553,7 @@ class GrupoFicticioSeeder extends Seeder
         $desgloseEfectivas = $this->buildCeEffectiveScores($student['id'], $conqueredIds);
         $desgloseCurricular = [];
 
-        foreach (self::CURRICULUM as $raCode => $ra) {
+        foreach ($this->curriculo as $raCode => $ra) {
             $critRows    = [];
             $sumRa       = 0.0;
             $totalWeight = 0.0;
@@ -719,15 +587,15 @@ class GrupoFicticioSeeder extends Seeder
             'ngsi_ld_id'               => $ngsiLdId,
             '@context'                 => 'https://vfds.example.org/ngsi-ld/eac-context.jsonld',
             'modulo'                   => [
-                'codigo'              => self::MODULO_CODIGO,
-                'nombre'              => self::MODULO_NOMBRE,
-                'ciclo'               => self::CICLO_NOMBRE,
-                'familia_profesional' => self::FAMILIA_NOMBRE,
+                'codigo'              => $this->modulo->codigo,
+                'nombre'              => $this->modulo->nombre,
+                'ciclo'               => $this->modulo->ciclo,
+                'familia_profesional' => $this->modulo->familia_profesional,
             ],
             'ecosistema'               => [
-                'id'     => self::ECOSISTEMA_ID,
-                'codigo' => self::ECOSISTEMA_CODIGO,
-                'nombre' => self::MODULO_NOMBRE,
+                'id'     => $this->ecosistema_laboral->id,
+                'codigo' => $this->ecosistema_laboral->codigo,
+                'nombre' => $this->ecosistema_laboral->nombre,
             ],
             'calificacion'             => $calificacion,
             'situaciones_conquistadas' => $situacionesConquistadas,
@@ -738,7 +606,7 @@ class GrupoFicticioSeeder extends Seeder
 
         DB::table('huellas_talento')->insert([
             'estudiante_id'         => $student['id'],
-            'ecosistema_laboral_id' => self::ECOSISTEMA_ID,
+            'ecosistema_laboral_id' => $this->ecosistema_laboral->id,
             'payload'               => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'ngsi_ld_id'            => $ngsiLdId,
             'generada_en'           => $now,
@@ -800,14 +668,14 @@ class GrupoFicticioSeeder extends Seeder
         $acc = [];
 
         foreach ($conqueredScIds as $scId) {
-            if (! isset(self::SC_CE_MAP[$scId])) {
+            if (! isset($this->sc_ce_map[$scId])) {
                 continue;
             }
             $score    = $this->scoreForSc($studentId, $scId);
             $grad     = $this->gradienteFromScore($score);
             $efectiva = $score * self::GRADIENTE_MULT[$grad];
 
-            foreach (self::SC_CE_MAP[$scId] as $ceId => $peso) {
+            foreach ($this->sc_ce_map[$scId] as $ceId => $peso) {
                 if (! isset($acc[$ceId])) {
                     $acc[$ceId] = ['weighted_sum' => 0.0, 'total_weight' => 0.0];
                 }
