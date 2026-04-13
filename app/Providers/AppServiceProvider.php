@@ -6,6 +6,7 @@ use App\Services\CalificacionService;
 use App\Services\EACAnalyticsService;
 use App\Services\HuellaService;
 use App\Services\GrafoService;
+use App\Services\VerifierJwksService;
 use App\Services\RecomendacionService;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(CalificacionService::class)
             );
         });
+        $this->app->singleton(VerifierJwksService::class);
 
     }
 

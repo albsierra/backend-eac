@@ -20,7 +20,7 @@ Route::get('/ecosistemas/{ecosistema}', Publico\EcosistemaController::class)
     ->name('publico.ecosistemas.show');
 
 // ─── Rutas del estudiante ─────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:estudiante'])
+Route::middleware(['auth:verifier,web', 'role:estudiante'])
     ->prefix('estudiante')
     ->name('estudiante.')
     ->group(function () {
@@ -41,7 +41,7 @@ Route::middleware(['auth', 'role:estudiante'])
     });
 
 // ─── Rutas del docente ────────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:docente'])
+Route::middleware(['auth:verifier,web', 'role:docente'])
     ->prefix('docente')
     ->name('docente.')
     ->group(function () {
@@ -59,9 +59,9 @@ Route::middleware(['auth', 'role:docente'])
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth:verifier,web', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:verifier,web')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

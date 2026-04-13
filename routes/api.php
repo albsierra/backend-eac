@@ -20,7 +20,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         ->name('ecosistemas.situaciones');
 
     // ── Autenticados (Sanctum) ───────────────────────────────────────────────────
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:verifier,sanctum')->group(function () {
 
         // Estudiante
         Route::prefix('estudiante')->name('estudiante.')->group(function () {
