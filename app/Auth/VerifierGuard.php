@@ -101,11 +101,7 @@ class VerifierGuard implements Guard
         $issuer    = config('verifier.issuer');    // https://central-verifier.VERIFIER
 
         try {
-            $keys   = $this->jwksService->getKeys();
-            $keySet = array_map(
-                fn ($key) => new Key($key, $algorithm),
-                $keys
-            );
+            $keySet = $this->jwksService->getKeys();
 
             $payload = JWT::decode($token, $keySet);
 
@@ -146,11 +142,7 @@ class VerifierGuard implements Guard
         } catch (\Firebase\JWT\SignatureInvalidException) {
             // Posible rotación de clave: refrescar JWKS y reintentar una vez
             try {
-                $freshKeys = $this->jwksService->refreshKeys();
-                $keySet    = array_map(
-                    fn ($key) => new Key($key, $algorithm),
-                    $freshKeys
-                );
+                $keySet    = $this->jwksService->refreshKeys();
                 return JWT::decode($token, $keySet);
             } catch (\Throwable) {
                 return null;
